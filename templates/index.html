@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Music Recommender</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0f0f0f;
+      --surface:  #1a1a1a;
+      --surface2: #242424;
+      --border:   #2e2e2e;
+      --text:     #f0f0f0;
+      --muted:    #888;
+      --purple:   #7c6ff7;
+      --purple-bg:#1e1b38;
+      --teal:     #34d399;
+      --teal-bg:  #0d2e22;
+      --amber:    #fbbf24;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
+    .logo span { color: var(--purple); }
+
+    .badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-weight: 500;
+    }
+    .badge-purple { background: var(--purple-bg); color: var(--purple); }
+    .badge-teal   { background: var(--teal-bg);   color: var(--teal);   }
+    .badge-winner { background: var(--teal-bg); color: var(--teal); font-size: 10px; padding: 2px 8px; border-radius: 99px; margin-left: 6px; }
+
+    main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 6px; }
+    .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 2rem; }
+
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 2rem; }
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+    }
+    .metric-val { font-size: 24px; font-weight: 600; color: var(--text); }
+    .metric-lbl { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 1rem;
+    }
+
+    .model-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .model-tab {
+      padding: 7px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .model-tab:hover { border-color: #444; color: var(--text); }
+    .model-tab.active { background: var(--purple-bg); border-color: var(--purple); color: var(--purple); }
+
+    .user-row { display: flex; gap: 12px; align-items: center; }
+    .avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--purple-bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; color: var(--purple);
+      flex-shrink: 0;
+    }
+
+    select {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    select:focus { outline: none; border-color: var(--purple); }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .tag {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 99px;
+    }
+    .tag-a { background: var(--purple-bg); color: var(--purple); }
+    .tag-b { background: var(--teal-bg);   color: var(--teal);   }
+    .tag-c { background: #2a1f0a;          color: var(--amber);  }
+
+    .rec-list { display: flex; flex-direction: column; gap: 0; }
+    .rec-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .rec-item:last-child { border-bottom: none; }
+    .rec-rank { font-size: 13px; color: var(--muted); min-width: 18px; }
+    .rec-name { flex: 1; font-size: 15px; font-weight: 500; }
+    .bar-wrap { width: 90px; height: 4px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; background: var(--purple); transition: width 0.4s ease; }
+    .rec-score { font-size: 12px; color: var(--muted); min-width: 34px; text-align: right; }
+
+    .comparison { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .comp-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+    .comp-card.best { border-color: var(--teal); }
+    .comp-name { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+    .comp-bar-wrap { height: 60px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 8px; }
+    .comp-bar { width: 36px; border-radius: 4px 4px 0 0; transition: height 0.6s ease; }
+    .comp-val { font-size: 18px; font-weight: 600; }
+    .comp-metric { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    .loading { color: var(--muted); font-size: 14px; padding: 1rem 0; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .comparison { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">music<span>rec</span></div>
+  <span class="badge badge-purple">Collaborative Filtering</span>
+</header>
+
+<main>
+  <h1>Music Recommender</h1>
+  <p class="subtitle">SVD · NMF · KNN &nbsp;·&nbsp; {{ n_users }} users · {{ n_artists }} artists</p>
+
+  <div class="metrics">
+    <div class="metric-card">
+      <div class="metric-val" id="m-auc">{{ model_meta.svd.auc }}</div>
+      <div class="metric-lbl">Test AUC</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val" id="m-prec">{{ model_meta.svd.precision }}</div>
+      <div class="metric-lbl">Precision@10</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val" id="m-score">{{ model_meta.svd.score }}</div>
+      <div class="metric-lbl">Norm. score</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Model</div>
+    <div class="model-tabs">
+      {% for key, meta in model_meta.items() %}
+      <button class="model-tab {% if key == winner %}active{% endif %}" onclick="setModel('{{ key }}')" id="tab-{{ key }}">
+        {{ meta.label }}
+        {% if key == winner %}<span class="badge-winner">best</span>{% endif %}
+      </button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">User</div>
+    <div class="user-row">
+      <div class="avatar" id="avatar">U0</div>
+      <select id="user-select" onchange="fetchRecs()">
+        {% for i in range(n_users) %}
+        <option value="{{ i }}">User {{ i }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <div style="font-size:12px; color:var(--muted); margin-top:14px; margin-bottom:6px;">Listening history</div>
+      <div class="tags" id="known-tags"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+      <div class="card-title" style="margin-bottom:0;">Recommended artists</div>
+      <span style="font-size:12px; color:var(--muted);" id="rec-model-label">SVD</span>
+    </div>
+    <div class="rec-list" id="rec-list"><div class="loading">Loading...</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Model comparison</div>
+    <div class="comparison">
+      <div class="comp-card {% if winner == 'svd' %}best{% endif %}" id="comp-svd">
+        <div class="comp-name">SVD {% if winner == 'svd' %}<span class="badge-winner">best</span>{% endif %}</div>
+        <div class="comp-bar-wrap">
+          <div class="comp-bar" style="background:var(--purple); height:{{ (model_meta.svd.score * 60)|int }}px;"></div>
+        </div>
+        <div class="comp-val" style="color:var(--purple);">{{ model_meta.svd.auc }}</div>
+        <div class="comp-metric">AUC</div>
+      </div>
+      <div class="comp-card {% if winner == 'nmf' %}best{% endif %}">
+        <div class="comp-name">NMF {% if winner == 'nmf' %}<span class="badge-winner">best</span>{% endif %}</div>
+        <div class="comp-bar-wrap">
+          <div class="comp-bar" style="background:#555; height:{{ (model_meta.nmf.score * 60)|int }}px;"></div>
+        </div>
+        <div class="comp-val" style="color:#aaa;">{{ model_meta.nmf.auc }}</div>
+        <div class="comp-metric">AUC</div>
+      </div>
+      <div class="comp-card {% if winner == 'knn' %}best{% endif %}">
+        <div class="comp-name">KNN {% if winner == 'knn' %}<span class="badge-winner">best</span>{% endif %}</div>
+        <div class="comp-bar-wrap">
+          <div class="comp-bar" style="background:var(--teal); height:{{ (model_meta.knn.score * 60)|int }}px;"></div>
+        </div>
+        <div class="comp-val" style="color:var(--teal);">{{ model_meta.knn.score }}</div>
+        <div class="comp-metric">norm. score</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>Built with Surprise · Flask &nbsp;·&nbsp; James Apuyan</footer>
+
+<script>
+  const modelMeta = {{ model_meta | tojson }};
+  let currentModel = '{{ winner }}';
+
+  function setModel(m) {
+    currentModel = m;
+    document.querySelectorAll('.model-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + m).classList.add('active');
+    const meta = modelMeta[m];
+    document.getElementById('m-auc').textContent   = meta.auc   ?? '—';
+    document.getElementById('m-prec').textContent  = meta.precision ?? '—';
+    document.getElementById('m-score').textContent = meta.score;
+    document.getElementById('rec-model-label').textContent = meta.label;
+    fetchRecs();
+  }
+
+  async function fetchRecs() {
+    const userId = document.getElementById('user-select').value;
+    document.getElementById('avatar').textContent = 'U' + userId;
+    document.getElementById('rec-list').innerHTML = '<div class="loading">Loading...</div>';
+
+    const model = currentModel;
+    const res  = await fetch(`/api/recommend?user_id=${userId}&model=${model}`);
+    const data = await res.json();
+
+    const tagColors = ['tag-a','tag-b','tag-c'];
+    document.getElementById('known-tags').innerHTML = data.known_artists
+      .map((a,i) => `<span class="tag ${tagColors[i%3]}">${a}</span>`)
+      .join('');
+
+    document.getElementById('rec-list').innerHTML = data.recommendations
+      .map((r, i) => `
+        <div class="rec-item">
+          <span class="rec-rank">${i+1}</span>
+          <span class="rec-name">${r.artist}</span>
+          <div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(r.score*100)}%"></div></div>
+          <span class="rec-score">${r.score.toFixed(2)}</span>
+        </div>
+      `).join('');
+  }
+
+  fetchRecs();
+</script>
+</body>
+</html>
