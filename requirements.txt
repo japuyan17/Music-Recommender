@@ -1,7 +1,6 @@
 flask
 gunicorn
 scikit-surprise
-scikit-learn
 numpy
 pandas
 scipy
