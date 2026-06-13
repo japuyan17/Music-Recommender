@@ -188,7 +188,7 @@
 
 <main>
   <h1>Music Recommender</h1>
-  <p class="subtitle">LightFM WARP · LightFM Logistic · KNN &nbsp;·&nbsp; {{ n_users }} users · {{ n_artists }} artists</p>
+  <p class="subtitle">SVD · NMF · KNN &nbsp;·&nbsp; {{ n_users }} users · {{ n_artists }} artists</p>
 
   <div class="metrics">
     <div class="metric-card">
@@ -236,7 +236,7 @@
   <div class="card">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
       <div class="card-title" style="margin-bottom:0;">Recommended artists</div>
-      <span style="font-size:12px; color:var(--muted);" id="rec-model-label">LightFM WARP</span>
+      <span style="font-size:12px; color:var(--muted);" id="rec-model-label">SVD</span>
     </div>
     <div class="rec-list" id="rec-list"><div class="loading">Loading...</div></div>
   </div>

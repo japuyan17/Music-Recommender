@@ -1,9 +1,7 @@
-cat > requirements.txt << 'EOF'
 flask
 gunicorn
-lightfm==1.17
 scikit-surprise
-numpy<2.0
+scikit-learn
+numpy
 pandas
 scipy
-EOF
