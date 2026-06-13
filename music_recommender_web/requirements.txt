@@ -1,0 +1,6 @@
+flask
+lightfm
+scikit-surprise
+numpy
+pandas
+scipy
