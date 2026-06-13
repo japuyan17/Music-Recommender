@@ -192,15 +192,15 @@
 
   <div class="metrics">
     <div class="metric-card">
-      <div class="metric-val" id="m-auc">{{ model_meta.warp.auc }}</div>
+      <div class="metric-val" id="m-auc">{{ model_meta.svd.auc }}</div>
       <div class="metric-lbl">Test AUC</div>
     </div>
     <div class="metric-card">
-      <div class="metric-val" id="m-prec">{{ model_meta.warp.precision }}</div>
+      <div class="metric-val" id="m-prec">{{ model_meta.svd.precision }}</div>
       <div class="metric-lbl">Precision@10</div>
     </div>
     <div class="metric-card">
-      <div class="metric-val" id="m-score">{{ model_meta.warp.score }}</div>
+      <div class="metric-val" id="m-score">{{ model_meta.svd.score }}</div>
       <div class="metric-lbl">Norm. score</div>
     </div>
   </div>
@@ -244,12 +244,12 @@
   <div class="card">
     <div class="card-title">Model comparison</div>
     <div class="comparison">
-      <div class="comp-card {% if winner == 'warp' %}best{% endif %}" id="comp-warp">
-        <div class="comp-name">WARP {% if winner == 'warp' %}<span class="badge-winner">best</span>{% endif %}</div>
+      <div class="comp-card {% if winner == 'svd' %}best{% endif %}" id="comp-svd">
+        <div class="comp-name">WARP {% if winner == 'svd' %}<span class="badge-winner">best</span>{% endif %}</div>
         <div class="comp-bar-wrap">
-          <div class="comp-bar" style="background:var(--purple); height:{{ (model_meta.warp.score * 60)|int }}px;"></div>
+          <div class="comp-bar" style="background:var(--purple); height:{{ (model_meta.svd.score * 60)|int }}px;"></div>
         </div>
-        <div class="comp-val" style="color:var(--purple);">{{ model_meta.warp.auc }}</div>
+        <div class="comp-val" style="color:var(--purple);">{{ model_meta.svd.auc }}</div>
         <div class="comp-metric">AUC</div>
       </div>
       <div class="comp-card {% if winner == 'logistic' %}best{% endif %}">
